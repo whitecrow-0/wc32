@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Primary SEO -->
+  <title>wc32 — Text Encoder &amp; Decoder</title>
+  <meta name="description" content="wc32 is a lightweight Python encoding library with optional salt support. Encode and decode text with a secret key, directly in your browser or via pip install wc32.">
+  <meta name="keywords" content="wc32, text encoder, text decoder, python encoding library, encode decode online, salt encoding, obfuscation, WhiteCrow">
+  <meta name="author" content="WhiteCrow">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://wc32.dev/">
+
+  <!-- Open Graph (social sharing) -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://wc32.dev/">
+  <meta property="og:title" content="wc32 — Text Encoder &amp; Decoder">
+  <meta property="og:description" content="Encode and decode text with a secret key using wc32. Supports random salt for non-deterministic output. Try the live demo or install via pip.">
+  <meta property="og:site_name" content="wc32">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="wc32 — Text Encoder &amp; Decoder">
+  <meta name="twitter:description" content="Encode and decode text with a secret key using wc32. Supports random salt for non-deterministic output.">
+
+  <!-- Structured Data (Google Rich Results) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "wc32",
+    "alternateName": "wc32 Encoder Decoder",
+    "description": "A lightweight Python encoding library with optional salt support for non-deterministic output. Encode and decode text using a secret key.",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Any",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "author": {
+      "@type": "Person",
+      "name": "WhiteCrow"
+    },
+    "url": "https://wc32.dev/"
+  }
+  </script>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="logo">wc32</div>
+    <p class="tagline">Text Encoder &amp; Decoder — Python library with optional salt support.</p>
+  </div>
+</header>
+
+<!-- Installation -->
+<section>
+  <div class="wrap">
+    <h2>Install</h2>
+    <pre><code>pip install wc32</code></pre>
+  </div>
+</section>
+
+<!-- Usage -->
+<section>
+  <div class="wrap">
+    <h2>Usage</h2>
+
+    <h3>Basic</h3>
+    <pre><code>from wc32 import encode, decode
+
+encoded = encode("Hello, World!", "my_secret_key")
+decoded = decode(encoded, "my_secret_key")
+print(decoded)  # Hello, World!</code></pre>
+
+    <h3>Non-deterministic (recommended)</h3>
+    <pre><code>encoded = encode("Hello", "key", salt=True)
+# Each call produces different output
+decoded = decode(encoded, "key")  # Hello</code></pre>
+
+    <h3>Custom salt</h3>
+    <pre><code>encoded = encode("Hello", "key", salt="deadbeef12345678")
+decoded = decode(encoded, "key")  # Hello</code></pre>
+  </div>
+</section>
+
+<!-- Demo -->
+<section>
+  <div class="wrap">
+    <h2>Demo</h2>
+    <div class="demo">
+
+      <div class="field">
+        <label>Text (one per line for batch)</label>
+        <textarea id="inputText" placeholder="Enter text…">Hello, World!</textarea>
+      </div>
+
+      <div class="field">
+        <label>Key</label>
+        <input type="text" id="key" placeholder="Secret key…" value="my_secret_key">
+      </div>
+
+      <div class="field">
+        <label>Custom charset (optional, min 10 chars)</label>
+        <input type="text" id="customCharset" placeholder="Leave empty for default…">
+      </div>
+
+      <div class="check-row">
+        <input type="checkbox" id="useSalt">
+        <label for="useSalt">Random salt (non-deterministic)</label>
+      </div>
+      <div class="check-row">
+        <input type="checkbox" id="useIntegrity">
+        <label for="useIntegrity">Integrity check</label>
+      </div>
+      <div class="check-row">
+        <input type="checkbox" id="useBinary">
+        <label for="useBinary">Binary mode (Base64)</label>
+      </div>
+
+      <div class="actions">
+        <button class="btn-encode" onclick="encodeText()">Encode</button>
+        <button class="btn-decode" onclick="decodeText()">Decode</button>
+      </div>
+
+      <div class="result" id="result">result will appear here…</div>
+    </div>
+  </div>
+</section>
+
+<!-- Salt -->
+<section>
+  <div class="wrap">
+    <h2>What is salt?</h2>
+
+    <p class="prose">
+      A <strong>salt</strong> is a random value mixed into the encoding process before your key is applied.
+      It has nothing to do with making output "more secret" — its sole job is to make the same input
+      produce a different output every time.
+    </p>
+
+    <h3>Without salt — deterministic</h3>
+    <p class="prose">
+      Encoding <code>"hello"</code> with key <code>"mykey"</code> will always produce the exact same string.
+      If someone sees two identical encoded values they immediately know the original inputs were identical too.
+      That leaks information — even without breaking the encoding.
+    </p>
+    <pre><code>encode("hello", "mykey")  # → always "Th.T7.T-.T*.TD"
+encode("hello", "mykey")  # → always "Th.T7.T-.T*.TD"  ← identical, information leaked</code></pre>
+
+    <h3>With salt — non-deterministic</h3>
+    <p class="prose">
+      A random 8-character hex prefix is generated and folded into the keystream before encoding.
+      Every call produces a completely different string even for identical inputs.
+      The salt is stored at the start of the encoded output so <code>decode()</code> can recover it automatically —
+      you never have to pass the salt separately.
+    </p>
+    <pre><code>encode("hello", "mykey", salt=True)  # → "a3f9c1b2.Xk.mR.pQ.nT.wZ"
+encode("hello", "mykey", salt=True)  # → "e7d20a5f.Yj.oS.qL.vU.xN"  ← different every time
+
+decode("a3f9c1b2.Xk.mR.pQ.nT.wZ", "mykey")  # → "hello"  ✓
+decode("e7d20a5f.Yj.oS.qL.vU.xN", "mykey")  # → "hello"  ✓</code></pre>
+
+    <h3>When should you use it?</h3>
+    <p class="prose">
+      Use <code>salt=True</code> whenever the same value might be encoded more than once and you don't
+      want observers to correlate the outputs — e.g. storing tokens, session identifiers, or any repeated string.
+      Skip it only when you intentionally need reproducible output (caching, deduplication).
+    </p>
+
+    <h3>Custom salt</h3>
+    <p class="prose">
+      You can pass your own 8–32 character hex string as the salt. This is useful for deterministic
+      but key-varied encoding — two parties can agree on a salt in advance and both produce identical output.
+    </p>
+    <pre><code>encode("hello", "mykey", salt="deadbeef")
+decode("deadbeef.Xk.mR.pQ.nT.wZ", "mykey")  # → "hello"</code></pre>
+
+    <div class="note">
+      <strong>Remember —</strong> salt prevents output correlation, it does not strengthen the encoding itself.
+      wc32 is obfuscation, not encryption. For secrets that must be kept, use a proper
+      encryption library such as <code>cryptography</code>.
+    </div>
+  </div>
+</section>
+
+<!-- API -->
+<section>
+  <div class="wrap">
+    <h2>API</h2>
+
+    <h3>encode(text, key, salt=False)</h3>
+    <table>
+      <tr><th>Param</th><th>Description</th></tr>
+      <tr><td data-label="Param"><code>text</code></td><td data-label="Description">String to encode</td></tr>
+      <tr><td data-label="Param"><code>key</code></td><td data-label="Description">Secret key</td></tr>
+      <tr><td data-label="Param"><code>salt</code></td><td data-label="Description"><code>False</code> deterministic · <code>True</code> random salt · <code>str</code> custom hex salt (8–32 chars)</td></tr>
+    </table>
+
+    <h3>decode(encoded_text, key)</h3>
+    <table>
+      <tr><th>Param</th><th>Description</th></tr>
+      <tr><td data-label="Param"><code>encoded_text</code></td><td data-label="Description">Previously encoded string</td></tr>
+      <tr><td data-label="Param"><code>key</code></td><td data-label="Description">Must match encoding key</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- Errors -->
+<section>
+  <div class="wrap">
+    <h2>Errors</h2>
+    <pre><code>encode("text", "")       # ValueError: Key must not be empty
+decode(enc, "wrong_key") # Returns garbled text (no error)
+decode("invalid!!!", "k")# ValueError: Invalid character</code></pre>
+
+    <div class="note warn">
+      <strong>Security note —</strong> this is obfuscation, not encryption.
+      Without salt output is deterministic. For sensitive data use
+      <code>salt=True</code> or a proper library like <code>cryptography</code>.
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    wc32 v1.0.0 &mdash; <a href="#">WhiteCrow</a>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
