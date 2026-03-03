@@ -70,8 +70,33 @@ function getCharset() {
 
 function setResult(content, state = '') {
   const box = document.getElementById("result");
+  const btn = document.getElementById("copyBtn");
   box.className = 'result' + (state ? ` ${state}` : '');
   box.innerHTML = content;
+  // Show copy button only when there's real content
+  if (state === 'has-content') {
+    btn.classList.add('visible');
+    btn.classList.remove('copied');
+    btn.textContent = 'Copy';
+  } else {
+    btn.classList.remove('visible', 'copied');
+  }
+}
+
+function copyResult() {
+  const box = document.getElementById("result");
+  const btn = document.getElementById("copyBtn");
+  // Get plain text, stripping the "encoded/decoded" label
+  const label = box.querySelector('.result-label');
+  const text = label ? box.innerText.replace(label.innerText, '').trim() : box.innerText.trim();
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Copy';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
 }
 
 // ── Encode ────────────────────────────────────────────────────────────────────
@@ -156,3 +181,28 @@ async function decodeText() {
     setResult("Error: " + e.message, "is-error");
   }
 }
+
+// ── Code block copy buttons ───────────────────────────────────────────────────
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('pre').forEach(pre => {
+    pre.style.position = 'relative';
+
+    const btn = document.createElement('button');
+    btn.textContent = 'Copy';
+    btn.className = 'btn-copy-code';
+    pre.appendChild(btn);
+
+    btn.addEventListener('click', () => {
+      const code = pre.querySelector('code');
+      navigator.clipboard.writeText(code ? code.innerText.trim() : pre.innerText.trim()).then(() => {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    });
+  });
+});

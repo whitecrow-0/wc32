@@ -128,7 +128,10 @@ decoded = decode(encoded, "key")  # Hello</code></pre>
         <button class="btn-decode" onclick="decodeText()">Decode</button>
       </div>
 
-      <div class="result" id="result">result will appear here…</div>
+      <div class="result-wrap">
+        <div class="result" id="result">result will appear here…</div>
+        <button class="btn-copy" id="copyBtn" onclick="copyResult()" title="Copy to clipboard">Copy</button>
+      </div>
     </div>
   </div>
 </section>
