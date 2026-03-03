@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://wc32.dev/sitemap.xml
+Sitemap: https://whitecrow-0.github.io/wc32/sitemap.xml
