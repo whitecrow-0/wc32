@@ -196,7 +196,7 @@ textarea {
 input[type="text"]:focus,
 textarea:focus { border-color: var(--muted); }
 
-textarea { resize: none; min-height: 72px; }
+textarea { resize: vertical; min-height: 72px; }
 
 .check-row {
   display: flex;
